@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     /* config options here */
+    experimental: {
+        serverActions: {
+            bodySizeLimit: "10mb", // or '5mb', '20mb' depending on your needs
+        },
+    },
     images: {
         remotePatterns: [
             {
@@ -18,6 +23,16 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "kitchenofdebjani.com",
                 pathname: "/wp-content/uploads/**",
+            },
+            {
+                protocol: "https",
+                hostname: "res.cloudinary.com",
+                pathname: "/rupayan/image/upload/**",
+            },
+            {
+                protocol: "http",
+                hostname: "res.cloudinary.com",
+                pathname: "/rupayan/image/upload/**",
             },
         ],
     },
