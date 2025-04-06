@@ -4,8 +4,9 @@ import CartCard from "@/components/CartCard";
 import SuggetionCard from "@/components/SuggetionCard";
 import axios from "axios";
 import { useEffect } from "react";
-
+import { useAuthStore } from "@/store/auth";
 export default function Home() {
+  const { user } = useAuthStore();
   useEffect(()=>{
     axios.get("http://localhost:8000").then(()=>{
       
@@ -16,7 +17,7 @@ export default function Home() {
         <div>Back</div>
           <div>
               <div>
-                  <h1>Weclome Carts</h1>
+                  <h1>Weclome Carts {`${user}`} </h1>
               </div>
               <div>
                 <CartCard />

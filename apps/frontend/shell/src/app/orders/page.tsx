@@ -2,6 +2,7 @@
 import React from 'react'
 
 function Page() {
+    
   return (
       <div className="px-5 min-h-52 mb-10">
           <div className="text-4xl flex items-center justify-center text-center mt-10 font-bold">
@@ -15,7 +16,7 @@ function Page() {
                               Order ID
                           </th>
                           <th className="bg-secondary text-primary border border-secondary">
-                              User Name
+                              User Name  
                           </th>
                           <th className="bg-secondary text-primary border border-secondary">
                               User Address
