@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from "@/store/auth";
 import { getItems, addMenuItem, editMenuItemServer, deleteMenuItem } from "@/actions/items/items";
 import toast from "react-hot-toast";
+import { addedToCartServer } from "@/actions/orderItemGet/orderItemGet";
 
 interface MenuItem {
     id: number;
@@ -61,6 +62,47 @@ function Page() {
             image: null as File | null,
             description: "",
         });
+
+    const [cartItems, setCartItems] = React.useState<MenuItem[]>([]);  
+
+    const SelectCartItemHandler = (item: MenuItem) => {
+        toast.success(item.name + " Selected to cart");
+        setCartItems((prevItems) => {
+            const existingItemIndex = prevItems.findIndex(
+                (i) => i.id === item.id
+            );
+
+            if (existingItemIndex !== -1) {
+                // Item already in cart — update quantity
+                const updatedItems = [...prevItems];
+                updatedItems[existingItemIndex].quantity += 1;
+                return updatedItems;
+            } else {
+                // New item — add with quantity 1
+                return [...prevItems, { ...item, quantity: 1 }];
+            }
+        });
+    };
+
+    const GotoCartHandler=async()=>{
+        if(cartItems.length===0) {return toast.error("Cart is empty");}
+        const userAndCart={
+            ...user,
+            cart:cartItems
+        }
+        addedToCartServer(userAndCart).then((res)=>{
+            if(res.success){
+                toast.success(res.message);
+            }
+            else{
+                toast.error(res.message);
+            }
+        }).catch((value) => {
+            toast.error(value);
+        })
+        
+    }
+
     const popUpwindowHandeler = (item: MenuItem) => {
         setSelectedItem(item);
         setNewEditedOrSaveItem({
@@ -233,8 +275,11 @@ function Page() {
                         <div className="flex items-center justify-center p-5 md:p-9 rounded-r-full rounded-l-full h-16 md:h-10 w-36 md:w-48 text-center bg-orange-600 mr-5 md:ml-5">
                             Order Now
                         </div>
-                        <div className="flex items-center justify-center p-5 md:p-9 rounded-r-full rounded-l-full h-16 md:h-10 w-36 md:w-48 text-center bg-pink-600 md:mr-5">
-                            Go to cart
+                        <div className="flex items-center justify-center p-5 md:p-9 rounded-r-full rounded-l-full h-16 md:h-10 w-36 md:w-48 text-center bg-pink-600 md:mr-5"
+                        onClick={GotoCartHandler}
+                        >
+                            Go to cart{" "}
+                            {cartItems.length > 0 ? cartItems.length : ""}
                         </div>
                     </div>
                 </div>
@@ -400,6 +445,7 @@ function Page() {
                                 className="border-2 rounded-xl mb-10 md:mx-5 border-green-500 w-72 h-96 flex flex-col items-center justify-around"
                                 key={i}
                             >
+                                
                                 <div className=" bg-blue-700">
                                     <Image
                                         src={item.image}
@@ -425,7 +471,14 @@ function Page() {
                                     <p
                                         className={`${item.is_veg ? "bg-green-600" : "bg-red-600"} w-5 h-5 min-h-5 min-w-5`}
                                     ></p>
-                                    <button className="bg-orange-200 text-orange-800 border-orange-800 px-6 rounded-full border-4 py-2">
+                                    
+                                   
+                                    <button
+                                        className="bg-orange-200 text-orange-800 border-orange-800 px-6 rounded-full border-4 py-2"
+                                        onClick={() =>
+                                            SelectCartItemHandler(item)
+                                        }
+                                    >
                                         +Add
                                     </button>
                                 </div>
@@ -550,7 +603,9 @@ function Page() {
                                         )}
                                         <button
                                             onClick={() =>
-                                                handleDeleteItem(`${selectedItem?.id}`)
+                                                handleDeleteItem(
+                                                    `${selectedItem?.id}`
+                                                )
                                             }
                                             className="bg-red-500 text-white px-4 py-2 rounded-md"
                                         >

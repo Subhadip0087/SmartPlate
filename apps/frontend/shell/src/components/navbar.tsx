@@ -30,6 +30,7 @@ function Navbar() {
     router.push("/contact-us")
   }
   const cartClick=()=>{
+    document.cookie = `authData=${btoa(JSON.stringify(user))}; path=/;`;
     window.location.href="http://localhost:3003"
   }
   return (

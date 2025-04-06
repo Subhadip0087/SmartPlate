@@ -25,6 +25,7 @@ model user {
   avatar_id  String
   isAdmin    Boolean  @default(false)
   orders     orders[] @relation(name: "orderedByUsers")
+  cart cart? @relation(name:"Cart")
 }
 
 model items {
@@ -52,6 +53,19 @@ model orders {
   quantity   Int
   TotalPrice Int
   items      Json
+  address    String
+  email      String
+  enrollment String
+}
+
+model cart {
+  id       Int  @id @unique @default(autoincrement())
+  items    Json
+  quantity Int  @default(1)
+  userId Int @unique
+  user user @relation(name:"Cart" ,fields: [userId],references: [id])
+  email String
+  enrollment String
 }
 
 enum OrderStatus {
