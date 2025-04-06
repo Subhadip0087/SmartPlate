@@ -69,6 +69,7 @@ export async function POST(req:NextRequest){
           expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
           domain: "localhost",
         });
+
         return NextResponse.json({
             message: "Hello, Next.js Serverless Functions!",
             user

@@ -23,6 +23,9 @@ function Navbar() {
   const logoClick = () => {
     router.push("/")
   } 
+  const itemClick = () => {
+      router.push("/items");
+  }; 
   const contactClick=()=>{
     router.push("/contact-us")
   }
@@ -42,7 +45,10 @@ function Navbar() {
           </div>
           <div className="hidden md:flex">
               <ul className=" text-lg flex justify-evenly w-96">
-                  <li className=" hover:text-gray-200 hover:font-semibold cursor-pointer">
+                  <li
+                      className=" hover:text-gray-200 hover:font-semibold cursor-pointer"
+                      onClick={itemClick}
+                  >
                       Item
                   </li>
                   <li
@@ -51,7 +57,9 @@ function Navbar() {
                   >
                       Cart
                   </li>
-                  <li className=" hover:text-gray-200 hover:font-semibold cursor-pointer">
+                  <li className=" hover:text-gray-200 hover:font-semibold cursor-pointer"
+                  onClick={()=>router.push("/orders")}
+                  >
                       Orders
                   </li>
                   <li
