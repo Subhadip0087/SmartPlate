@@ -1,255 +1,75 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faEdit,
-    faTrash,
-    faPlus,
-    faTimes,
-} from "@fortawesome/free-solid-svg-icons";
-import Img from "../../../public/img1.png"
-import { addMenuItem, deleteMenuItem, getItems } from "@/actions/items/items";
-import { useAuthStore } from "@/store/auth";
-
-interface MenuItem {
-    id: number; // Prisma uses Int for id, so this should be a number
-    name: string;
-    price: number;
-    stock: number;
-    category: "mainCourse" | "snacks"; // Map Prisma enum to the interface's categories
-    image: string;
-    image_id: string; // Assuming image_id is relevant to the menu item
-    description?: string; // Optional field
-    is_veg: boolean; // Boolean to indicate if the item is vegetarian or not
-}
-
-interface MenuProps {
-    isAdmin: boolean;
-}
-
-const Menu: React.FC<MenuProps> = ({  }) => {
-    const {user} = useAuthStore();
-    const [items, setItems] = useState<MenuItem[]>([]);
-    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-    const [newItem, setNewItem] = useState<Partial<MenuItem>>({
-        name: "",
-        price: 0,
-        stock: 0,
-        category: "mainCourse",
-        image: "",
-        image_id: "", // Include image_id in the initial state
-        description: "",
-        is_veg: true, // Assuming default is Veg, so is_veg is true
-    });
-
-    useEffect(() => {
-        const loadMenu = async () => {
-            const menuItems = await getItems();
-            setItems(menuItems);
-        };
-        loadMenu();
-    }, []);
-
-    const openPopup = (item: MenuItem) => setSelectedItem(item);
-    const closePopup = () => setSelectedItem(null);
-
-    const handleInputChange = (
-        e: React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >
-    ) => {
-        setNewItem({ ...newItem, [e.target.name]: e.target.value });
-    };
-
-    const handleAddItem = async () => {
-        if (
-            !newItem.name ||
-            !newItem.price ||
-            !newItem.stock ||
-            !newItem.image ||
-            !newItem.description
-        )
-            return;
-        const addedItem = await addMenuItem(newItem as MenuItem);
-        setItems([...items, addedItem]);
-        setNewItem({
-            name: "",
-            price: 0,
-            stock: 0,
-            category: "mainCourse",
-            image: "",
-            description: "",
-        });
-    };
-
-    const handleDeleteItem = async (id: string) => {
-        await deleteMenuItem(Number(id));
-        setItems(items.filter((item) => item.id !== Number(id)));
-        closePopup();
-    };
-    const isAdmin = user?.isAdmin || false;
-    return (
-        <div className="max-w-7xl mx-auto px-4 py-12">
-            <h2 className="text-2xl font-bold mb-4">All Items</h2>
-
-            {isAdmin && (
-                <div className="mb-4 p-4 border rounded-lg bg-gray-800 text-black">
-                    <h3 className="text-lg font-semibold mb-2">Add New Item</h3>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        value={newItem.name}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    />
-                    <input
-                        type="number"
-                        name="price"
-                        placeholder="Price"
-                        value={newItem.price}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    />
-                    <input
-                        type="number"
-                        name="stock"
-                        placeholder="Stock"
-                        value={newItem.stock}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    />
-                    <select
-                        name="category"
-                        value={newItem.category}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    >
-                        <option value="Veg">Veg</option>
-                        <option value="Non-Veg">Non-Veg</option>
-                    </select>
-                    <input
-                        type="text"
-                        name="image"
-                        placeholder="Image URL"
-                        value={newItem.image}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    />
-                    <textarea
-                        name="description"
-                        placeholder="Description"
-                        value={newItem.description}
-                        onChange={handleInputChange}
-                        className="p-2 border rounded-md w-full mb-2"
-                    ></textarea>
-                    <button
-                        onClick={handleAddItem}
-                        className="bg-green-500 text-white px-4 py-2 rounded-md"
-                    >
-                        <FontAwesomeIcon icon={faPlus} /> Add Item
-                    </button>
-                </div>
-            )}
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {items.map((item) => (
-                    <div
-                        key={item.id}
-                        className="border rounded-lg p-4 text-center cursor-pointer"
-                        onClick={() => openPopup(item)}
-                    >
-                        <div className="relative w-full h-32">
-                            <Image
-                                src={Img}
-                                alt={item.name}
-                                height={100}
-                                width={100}
-                                layout="fill"
-                                objectFit="cover"
-                                className="rounded-md"
-                            />
-                        </div>
-                        <h3 className="text-lg font-semibold mt-2">
-                            {item.name}
-                        </h3>
-                        <p className="text-gray-400">₹{item.price}</p>
-                        <p
-                            className={
-                                item.is_veg === true
-                                    ? "text-green-400"
-                                    : "text-red-400"
-                            }
-                        >
-                            {item.category}
-                        </p>
-                        <p className="text-sm">Stock: {item.stock}</p>
+<div className="overflow-x-auto">
+          <table className="table w-full table-zebra border-2 border-secondary">
+            <thead>
+              <tr>
+                <th className="bg-secondary text-primary">Order ID</th>
+                <th className="bg-secondary text-primary">Items</th>
+                <th className="bg-secondary text-primary">Total Price</th>
+                <th className="bg-secondary text-primary">Status</th>
+                <th className="bg-secondary text-primary">Created At</th>
+              </tr>
+            </thead>
+            <tbody className="bg-base-100">
+              <tr>
+                <td className="border-t-2 border-secondary">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm font-bold text-primary">
+                      #RT001
                     </div>
-                ))}
-            </div>
-
-            {selectedItem && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg w-96 relative">
-                        <button
-                            className="absolute top-2 right-2 text-gray-500 hover:text-black"
-                            onClick={closePopup}
-                        >
-                            <FontAwesomeIcon icon={faTimes} />
-                        </button>
-                        <h2 className="text-2xl font-bold mb-2">
-                            {selectedItem.name}
-                        </h2>
-                        <div className="relative w-full h-40">
-                            <Image
-                                src={Img}
-                                alt={selectedItem.name}
-                                width={100}
-                                
-                                layout="fill"
-                                objectFit="cover"
-                                className="rounded-md"
-                            />
-                        </div>
-                        <p className="text-gray-500 mb-2">
-                            {selectedItem.description}
-                        </p>
-                        <p className="text-lg font-semibold">
-                            ₹{selectedItem.price}
-                        </p>
-                        <p
-                            className={
-                                selectedItem.is_veg === true
-                                    ? "text-green-400"
-                                    : "text-red-400"
-                            }
-                        >
-                            {selectedItem.category}
-                        </p>
-                        <p className="text-sm">Stock: {selectedItem.stock}</p>
-
-                        {isAdmin && (
-                            <div className="flex justify-between mt-4">
-                                <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                                    <FontAwesomeIcon icon={faEdit} /> Edit
-                                </button>
-                                <button
-                                    onClick={() =>
-                                        handleDeleteItem((selectedItem.id).toString())
-                                    }
-                                    className="bg-red-500 text-white px-4 py-2 rounded-md"
-                                >
-                                    <FontAwesomeIcon icon={faTrash} /> Delete
-                                </button>
+                  </div>
+                </td>
+                <td className="border-t-2 border-secondary">
+                  <table className="table w-full">
+                    <tbody>
+                      <tr className="hover">
+                        <td className="px-2 py-1 border-t-2 border-secondary">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-sm font-bold text-primary">
+                              1 x
                             </div>
-                        )}
-                    </div>
-                </div>
-            )}
+                            <div className="text-sm font-bold text-primary">
+                              Item Name
+                            </div>
+                            <div className="text-sm font-bold text-primary">
+                              $12.99
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="hover">
+                        <td className="px-2 py-1 border-t-2 border-secondary">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-sm font-bold text-primary">
+                              2 x
+                            </div>
+                            <div className="text-sm font-bold text-primary">
+                              Item Name
+                            </div>
+                            <div className="text-sm font-bold text-primary">
+                              $24.99
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+                <td className="border-t-2 border-secondary">
+                  <div className="text-sm font-bold text-primary">
+                    $37.98
+                  </div>
+                </td>
+                <td className="border-t-2 border-secondary">
+                  <div className="text-sm font-bold text-primary">
+                    Pending
+                  </div>
+                </td>
+                <td className="border-t-2 border-secondary">
+                  <div className="text-sm font-bold text-primary">
+                    22nd Feb 2023
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-    );
-};
-
-export default Menu;

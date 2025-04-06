@@ -57,7 +57,9 @@ function Navbar() {
                   >
                       Cart
                   </li>
-                  <li className=" hover:text-gray-200 hover:font-semibold cursor-pointer">
+                  <li className=" hover:text-gray-200 hover:font-semibold cursor-pointer"
+                  onClick={()=>router.push("/orders")}
+                  >
                       Orders
                   </li>
                   <li
